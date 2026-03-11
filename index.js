@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config();
 const app = express();
-const port = 3000;
+const PORT = 3000;
 const HOST = '0.0.0.0';
 const cors = require('cors')
 const connectDB = require('./config/db');
@@ -13,6 +13,6 @@ app.get('/', (req, res) => {
     res.send('🚀🚀🚀🚀');
 });
 app.use('/api/banners', require('./routes/bannerRoutes'));
-app.listen(port, HOST,() => {
-    console.log(`Example app listening at http://localhost:${port}`);
+app.listen(PORT, HOST,() => {
+  console.log(`Server is running at http://${HOST}:${PORT}`);
 });
