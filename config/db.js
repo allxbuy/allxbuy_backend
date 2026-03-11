@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const dbURI = 'mongodb://localhost:27017/alxbuy' || process.env.MONGODB_URI;
+const dbURI =  process.env.MONGODB_URI || "mongodb://localhost:27017/alxbuy";
 const connectDB = async () => {
 
     try{
