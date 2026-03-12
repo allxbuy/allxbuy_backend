@@ -13,6 +13,7 @@ app.get('/', (req, res) => {
     res.send('🚀🚀🚀🚀');
 });
 app.use('/api/banners', require('./routes/bannerRoutes'));
+app.use('/api/categories', require('./routes/categoryRoutes'));
 app.listen(PORT, HOST,() => {
   console.log(`Server is running at http://${HOST}:${PORT}`);
 });
