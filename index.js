@@ -14,6 +14,7 @@ app.get('/', (req, res) => {
 });
 app.use('/api/banners', require('./routes/bannerRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
+app.use('/api/products', require('./routes/productRoutes'));
 app.listen(PORT, HOST,() => {
   console.log(`Server is running at http://${HOST}:${PORT}`);
 });
