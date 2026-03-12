@@ -3,88 +3,136 @@ const Banner = require('../models/bannerModel');
 
 exports.addBanner = async (req, res) => {
   try {
-    const { title, subtitle, description, buttonText, position, isActive = true } = req.body;
+
+    const {
+      title,
+      subtitle,
+      description,
+      discountText,
+      label,
+      price,
+      oldPrice,
+      buttonText,
+      buttonLink,
+      position,
+      type,
+      startDate,
+      endDate,
+      isActive = true
+    } = req.body;
 
     // validation
-    if (!title || !position) {
+    if (!type || !position) {
       return res.status(400).json({
-        message: "Title and Position are required"
+        success: false,
+        message: "Type and position are required"
       });
     }
 
-    const imageUrl = req.file ? req.file.path : null;
+    const imageUrl = req.file?.path;
 
-    // check if banner already exists in this position
-    const existingBanner = await Banner.findOne({ position });
+    if (!imageUrl) {
+      return res.status(400).json({
+        success: false,
+        message: "Banner image is required"
+      });
+    }
 
+    // check if banner already exists in this type + position
+    const existingBanner = await Banner.findOne({ type, position });
+
+    // UPDATE existing banner
     if (existingBanner) {
-      // update existing banner
+
       existingBanner.title = title;
       existingBanner.subtitle = subtitle;
       existingBanner.description = description;
+      existingBanner.discountText = discountText;
+      existingBanner.label = label;
+      existingBanner.price = price;
+      existingBanner.oldPrice = oldPrice;
       existingBanner.buttonText = buttonText;
+      existingBanner.buttonLink = buttonLink;
+      existingBanner.startDate = startDate;
+      existingBanner.endDate = endDate;
+      existingBanner.imageUrl = imageUrl;
       existingBanner.isActive = isActive;
-
-      if (imageUrl) {
-        existingBanner.imageUrl = imageUrl;
-      }
 
       const updatedBanner = await existingBanner.save();
 
       return res.status(200).json({
+        success: true,
         message: "Banner updated successfully",
-        banner: updatedBanner
+        data: updatedBanner
       });
     }
 
-    // create new banner
+    // CREATE new banner
     const newBanner = new Banner({
       title,
       subtitle,
       description,
-      imageUrl,
+      discountText,
+      label,
+      price,
+      oldPrice,
       buttonText,
+      buttonLink,
       position,
+      type,
+      startDate,
+      endDate,
+      imageUrl,
       isActive
     });
 
     const savedBanner = await newBanner.save();
 
     res.status(201).json({
+      success: true,
       message: "Banner created successfully",
-      banner: savedBanner
+      data: savedBanner
     });
 
   } catch (error) {
-    console.error("Error creating banner:", error);
+
+    console.error("Banner Error:", error);
+
     res.status(500).json({
-      message: "Error creating banner",
+      success: false,
+      message: "Server error",
       error: error.message
     });
+
   }
 };
-
 
 
 exports.getHomepageBanners = async (req, res) => {
   try {
 
     const banners = await Banner.find({ isActive: true })
-      .sort({ position: 1 })
-    
+      .sort({ position: 1 });
+
+    const grouped = {
+      heroCarousel: banners.filter(b => b.type === "hero_carousel"),
+      sideBanners: banners.filter(b => b.type === "side_banner"),
+      promoBanners: banners.filter(b => b.type === "promo_banner")
+    };
 
     res.status(200).json({
       success: true,
-      count: banners.length,
-      data: banners
+      data: grouped
     });
 
   } catch (error) {
-    console.error("Error fetching banners:", error);
+
+    console.error(error);
+
     res.status(500).json({
       success: false,
-      message: "Error fetching banners",
-      error: error.message
+      message: "Error fetching banners"
     });
+
   }
 };
