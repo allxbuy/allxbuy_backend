@@ -63,3 +63,129 @@ exports.getAllCategories = async (req, res) => {
     });
   }
 };
+
+exports.updateCategory = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+    const { name, description, replaceImages } = req.body;
+
+    const category = await Category.findById(id);
+
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found"
+      });
+    }
+
+    // update fields
+    if (name) category.name = name;
+    if (description) category.description = description;
+
+    if (req.files && req.files.length > 0) {
+
+      const newImages = req.files.map(file => ({
+        url: file.path
+      }));
+
+      // replace images
+      if (replaceImages === "true") {
+        category.images = newImages;
+      } else {
+        // append images
+        category.images = [...category.images, ...newImages];
+      }
+
+    }
+
+    const updatedCategory = await category.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Category updated successfully",
+      data: updatedCategory
+    });
+
+  } catch (error) {
+
+    console.error("Update Category Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+
+  }
+};
+
+exports.deleteCategory = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+
+    const category = await Category.findById(id);
+
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found"
+      });
+    }
+
+    await Category.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Category deleted successfully"
+    });
+
+  } catch (error) {
+
+    console.error("Delete Category Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+
+  }
+};
+
+
+exports.toggleCategoryStatus = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+
+    const category = await Category.findById(id);
+
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        message: "Category not found"
+      });
+    }
+
+    // toggle status
+    category.isActive = !category.isActive;
+
+    await category.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Category status updated",
+      data: category
+    });
+
+  } catch (error) {
+
+    console.error("Toggle Category Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+
+  }
+};
