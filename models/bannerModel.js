@@ -1,57 +1,7 @@
-const mongoose = require("mongoose");
-
-const bannerSchema = new mongoose.Schema(
-{
-  title: {
-    type: String,
-    required: true,
-    trim: true
-  },
-
-  subtitle: {
-    type: String,
-    trim: true
-  },
-
-  description: {
-    type: String,
-    trim: true
-  },
-
-  discountText: {
-    type: String
-  },
-
-  label: {
-    type: String // SALE / TOP RATED
-  },
-
-  price: {
-    type: Number
-  },
-
-  oldPrice: {
-    type: Number
-  },
-
-  imageUrl: {
-    type: String,
-    required: true
-  },
-
-  buttonText: {
-    type: String,
-    default: "Shop Now"
-  },
-
-  buttonLink: {
-    type: String,
-    default: "#"
-  },
-
+const bannerSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ["hero_carousel", "side_banner"],
+    enum: ["carousel", "sideBanner"],
     required: true
   },
 
@@ -60,17 +10,33 @@ const bannerSchema = new mongoose.Schema(
     required: true
   },
 
-  isActive: {
-    type: Boolean,
-    default: true
+  label: String,
+  discountText: String,
+
+  title: String,
+  subtitle: String,
+  description: String,
+
+  price: Number,
+  oldPrice: Number,
+
+  buttonText: String,
+  buttonLink: String,
+
+  imageUrl: {
+    type: String,
+    required: true
   },
 
   startDate: Date,
+  endDate: Date,
 
-  endDate: Date
+  isActive: {
+    type: Boolean,
+    default: true
+  }
 
-},
-{ timestamps: true }
-);
+}, { timestamps: true });
+
 
 module.exports = mongoose.model("Banner", bannerSchema);
