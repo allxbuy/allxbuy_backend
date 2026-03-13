@@ -133,3 +133,127 @@ exports.getProductsByCategory = async (req, res) => {
     });
   }
 };
+
+exports.updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, price, stock, category } = req.body;
+
+    // check product exists
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // if category provided check it
+    if (category) {
+      const categoryExists = await Category.findById(category);
+      if (!categoryExists) {
+        return res.status(404).json({
+          success: false,
+          message: "Category not found",
+        });
+      }
+      product.category = category;
+    }
+
+    // update fields
+    if (name) product.name = name;
+    if (description) product.description = description;
+    if (price) product.price = price;
+    if (stock) product.stock = stock;
+
+    // update images if new ones uploaded
+    if (req.files && req.files.length > 0) {
+      const images = req.files.map((file) => ({
+        url: file.path,
+      }));
+
+      product.images = images;
+    }
+
+    await product.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      data: product,
+    });
+
+  } catch (error) {
+    console.error("Update Product Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+exports.deleteProduct = async (req, res) => {
+
+  try {
+    const { id } = req.params;
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+    await Product.findByIdAndDelete(id);
+
+
+    return res.status(200).json({
+      success: true,
+      message: "Product deleted successfully",
+    });
+  } catch (error) {
+        console.error("Delete Product Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+
+  }
+}
+
+
+
+exports.toggleProductStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // toggle status
+    product.isActive = !product.isActive;
+
+    await product.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Product status updated",
+      data: product,
+    });
+
+  } catch (error) {
+    console.error("Toggle Product Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
